@@ -1,0 +1,56 @@
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
+config = {
+'axes.spines.right': False,
+'axes.spines.top': False,
+'axes.edgecolor': '.4',
+'axes.labelcolor': '.0',
+'axes.titlesize': 'large',
+'axes.labelsize': 'medium',
+'figure.autolayout': True,
+'figure.figsize': (4.5, 3.5),
+'font.family': ['serif'],
+'font.size': 10.0,
+'grid.linestyle': '--',
+'legend.facecolor': '.9',
+'legend.frameon': True,
+'savefig.transparent': True,
+'text.color': '.0',
+'xtick.labelsize': 'small',
+'ytick.labelsize': 'small',
+}
+plt.style.use(['seaborn-whitegrid', 'seaborn-paper', 'seaborn-muted', config])
+
+from scipy import odr
+df = pd.read_csv('dados.csv')
+x,y = df['d'], df['t']
+
+plt.errorbar(
+x, y, fmt='o', elinewidth=2/3, capsize=5, capthick=2/3, color='black',
+zorder=10)
+
+plt.scatter(x,y,zorder=10)
+plt.xlabel('Distância [m]')
+plt.ylabel('Período [s]')
+plt.title('Período [s] x Distância [m]')
+
+# regressão linear
+data = odr.RealData(x, y)
+odreg = odr.ODR(data, odr.quadratic)
+odreg.set_job(fit_type=2) # muda para mínimos quadrados
+ans = odreg.run()
+a, b,c = ans.beta # y = ax**2 +bx + c
+da, db, dc = ans.sd_beta # incertezas de a e b c
+
+# monta os limites para desenho da reta
+X = np.linspace(min(x), max(x), num=300)
+Y = a * X**2 + b*X + c
+# e faz o gráfico dela atrá dos pontos
+plt.plot(X, Y,alpha=0.7)
+# para exibir as legendas do gráfico
+plt.legend()
+
+plt.savefig('i.png')
+plt.show()
