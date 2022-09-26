@@ -1,0 +1,47 @@
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
+config = {
+'axes.spines.right': False,
+'axes.spines.top': False,
+'axes.edgecolor': '.4',
+'axes.labelcolor': '.0',
+'axes.titlesize': 'large',
+'axes.labelsize': 'medium',
+'figure.autolayout': True,
+'figure.figsize': (4.5, 3.5),
+'font.family': ['serif'],
+'font.size': 10.0,
+'grid.linestyle': '--',
+'legend.facecolor': '.9',
+'legend.frameon': True,
+'savefig.transparent': True,
+'text.color': '.0',
+'xtick.labelsize': 'small',
+'ytick.labelsize': 'small',
+}
+plt.style.use(['seaborn-whitegrid', 'seaborn-paper', 'seaborn-muted', config])
+
+
+df = pd.read_csv('dados.csv')
+x,y = df['d'], df['t']
+plt.scatter(x,y)
+plt.xlabel('Distância [m]')
+plt.ylabel('Período [s]')
+plt.title('Período [s] x Distância [m]')
+
+
+def hanging_line(point1, point2):
+  a = (point2[1] - point1[1])/(np.cosh(point2[0]) - np.cosh(point1[0]))
+  b = point1[1] - a*np.cosh(point1[0])
+  x = np.linspace(point1[0], point2[0], 100)
+  y = a*np.cosh(x) + b
+  return (x,y)
+
+X,Y = hanging_line(x,y)
+plt.plot(x, y, color='red', alpha=1, label=f'curva')
+
+plt.legend()
+plt.savefig('dados.png')
+plt.show()
