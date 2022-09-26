@@ -1,0 +1,63 @@
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
+config = {
+'axes.spines.right': False,
+'axes.spines.top': False,
+'axes.edgecolor': '.4',
+'axes.labelcolor': '.0',
+'axes.titlesize': 'large',
+'axes.labelsize': 'medium',
+'figure.autolayout': True,
+'figure.figsize': (4.5, 3.5),
+'font.family': ['serif'],
+'font.size': 10.0,
+'grid.linestyle': '--',
+'legend.facecolor': '.9',
+'legend.frameon': True,
+'savefig.transparent': True,
+'text.color': '.0',
+'xtick.labelsize': 'small',
+'ytick.labelsize': 'small',
+}
+plt.style.use(['seaborn-whitegrid', 'seaborn-paper', 'seaborn-muted', config])
+
+from scipy import odr
+df = pd.read_csv('massaacel.csv')
+x,y = df['m'], df['a']
+dx = df['dm']
+dy = df['da']
+
+plt.errorbar(
+x, y, xerr=dx, yerr=dy,
+fmt='o', elinewidth=2/3, capsize=5, capthick=2/3, color='black',
+zorder=10)
+
+plt.scatter(x,y,zorder=10)
+plt.xlabel('Diferença de massas [g]')
+plt.ylabel('Aceleração [m/s²]')
+plt.title('Aceleração (m/s²) x Diferença de massas (g)')
+
+# regressão linear
+data = odr.RealData(x, y, sx=dx, sy=dy)
+#odreg = odr.ODR(data, odr.quadratic)
+odreg = odr.ODR(data, odr.models.unilinear)
+odreg.set_job(fit_type=2) # muda para mínimos quadrados
+ans = odreg.run()
+a, b = ans.beta # y = ax**2 +bx + c
+da, db = ans.sd_beta # incertezas de a e b c
+
+rotulo = f'y = ({a:.5f})x + ({b:.3f})'
+
+# monta os limites para desenho da reta
+X = np.linspace(min(x), max(x), num=200)
+Y = a * X + b
+# e faz o gráfico dela atrá dos pontos
+plt.plot(X, Y, color='red', alpha=0.7, label=rotulo)
+# para exibir as legendas do gráfico
+plt.legend()
+
+
+plt.savefig('inc2.png')
+plt.show()
