@@ -1,0 +1,41 @@
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
+config = {
+'axes.spines.right': False,
+'axes.spines.top': False,
+'axes.edgecolor': '.4',
+'axes.labelcolor': '.0',
+'axes.titlesize': 'large',
+'axes.labelsize': 'medium',
+'figure.autolayout': True,
+'figure.figsize': (4.5, 3.5),
+'font.family': ['serif'],
+'font.size': 10.0,
+'grid.linestyle': '--',
+'legend.facecolor': '.9',
+'legend.frameon': True,
+'savefig.transparent': True,
+'text.color': '.0',
+'xtick.labelsize': 'small',
+'ytick.labelsize': 'small',
+}
+plt.style.use(['seaborn-whitegrid', 'seaborn-paper', 'seaborn-muted', config])
+
+
+df = pd.read_csv('c5.csv')
+x,y = df['t'], df['y']
+plt.scatter(x,y)
+plt.xlabel('Tempo [s]')
+plt.ylabel('Posicão y [m]')
+plt.title('Gŕafico 5')
+X = np.linspace(min(x), max(x), num=200)
+a = -2.087E-1
+b = -3.332E-2
+c = 1.103E-2
+Y = a*X**2 + b*X + c
+plt.plot(X, Y, color='red', alpha=1, label=f'{a}t^2 + {b}t + {c}')
+plt.legend()
+plt.savefig('grafico 5 (c5).png')
+plt.show()
